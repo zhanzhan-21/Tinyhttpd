@@ -32,15 +32,19 @@ Compile for Linux
 <p><br>
 </p>
 <h4>&nbsp; &nbsp; &nbsp;工作流程</h4>
-<p>&nbsp; &nbsp; &nbsp;（1） 服务器启动，在指定端口或随机选取端口绑定 httpd 服务。</p>
-<p>&nbsp; &nbsp; &nbsp;（2）收到一个 HTTP 请求时（其实就是 listen 的端口 accpet 的时候），派生一个线程运行 accept_request 函数。</p>
-<p>&nbsp; &nbsp; &nbsp;（3）取出 HTTP 请求中的 method (GET 或 POST) 和 url,。对于 GET 方法，如果有携带参数，则 query_string 指针指向 url 中 ？ 后面的 GET 参数。</p>
-<p>&nbsp; &nbsp; &nbsp;（4） &#26684;式化 url 到 path 数组，表示浏览器请求的服务器文件路径，在 tinyhttpd 中服务器文件是在 htdocs 文件夹下。当 url 以 / 结尾，或 url 是个目录，则默认在 path 中加上 index.html，表示访问主页。</p>
-<p>&nbsp; &nbsp; &nbsp;（5）如果文件路径合法，对于无参数的 GET 请求，直接输出服务器文件到浏览器，即用 HTTP &#26684;式写到套接字上，跳到（10）。其他情况（带参数 GET，POST 方式，url 为可执行文件），则调用 excute_cgi 函数执行 cgi 脚本。</p>
-<p>&nbsp; &nbsp; （6）读取整个 HTTP 请求并丢弃，如果是 POST 则找出 Content-Length. 把 HTTP 200 &nbsp;状态码写到套接字。</p>
-<p>&nbsp; &nbsp; （7） 建立两个管道，cgi_input 和 cgi_output, 并 fork 一个进程。</p>
-<p>&nbsp; &nbsp; （8） 在子进程中，把 STDOUT 重定向到 cgi_outputt 的写入端，把 STDIN 重定向到 cgi_input 的读取端，关闭 cgi_input 的写入端 和 cgi_output 的读取端，设置 request_method 的环境变量，GET 的话设置 query_string 的环境变量，POST 的话设置 content_length 的环境变量，这些环境变量都是为了给 cgi 脚本调用，接着用 execl 运行 cgi 程序。</p>
-<p>&nbsp; &nbsp; （9） 在父进程中，关闭 cgi_input 的读取端 和 cgi_output 的写入端，如果 POST 的话，把 POST 数据写入 cgi_input，已被重定向到 STDIN，读取 cgi_output 的管道输出到客户端，该管道输入是 STDOUT。接着关闭所有管道，等待子进程结束。这一部分比较乱，见下图说明：</p>
+<p>&nbsp; &nbsp; &nbsp;（1） 服务器启动：在指定端口或随机选取端口绑定 HTTP 服务。</p>
+<p>&nbsp; &nbsp; &nbsp;（2） 接收请求：当接收到一个 HTTP 请求时，派生一个线程运行 accept_request 函数。</p>
+<p>&nbsp; &nbsp; &nbsp;（3） 解析请求：提取 HTTP 请求中的方法（GET 或 POST）和 URL。对于 GET 方法，如果有携带参数，则 query_string 指针指向 URL 中 ? 后面的参数。</p>
+<p>&nbsp; &nbsp; &nbsp;（4） 格式化路径：将 URL 格式化为服务器文件路径，默认在 htdocs 文件夹下。如果 URL 以 / 结尾或指向一个目录，则默认添加 index.html。</p>
+<p>&nbsp; &nbsp; &nbsp;（5） 处理请求：</p>
+<p>&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;如果文件路径合法且为无参数的 GET 请求，直接将服务器文件发送给客户端。</p>
+<p>&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;其他情况（带参数 GET、POST 方式、URL 为可执行文件），调用 execute_cgi 函数执行 CGI 脚本。</p>
+<p>&nbsp; &nbsp; &nbsp;（6） 执行 CGI 脚本：</p>
+<p>&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;读取整个 HTTP 请求并丢弃，如果是 POST 请求则找出 Content-Length。</p>
+<p>&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;建立两个管道 cgi_input 和 cgi_output，并创建一个子进程。</p>
+<p>&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;在子进程中，重定向标准输入输出，设置环境变量，然后执行 CGI 程序。</p>
+<p>&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;在父进程中，处理 POST 数据，读取 CGI 程序的输出并发送给客户端。</p>
+<p>&nbsp; &nbsp; &nbsp;（7） 关闭连接：关闭与客户端的连接，完成一次 HTTP 请求和响应。</p>
 <p><br>
 </p>
 <p><img src="http://img.blog.csdn.net/20141226173222750?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvamNqYzkxOA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" width="484" height="222" alt=""><br>
