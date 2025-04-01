@@ -47,18 +47,6 @@ Compile for Linux
 <p>&nbsp; &nbsp; &nbsp;（7） 关闭连接：关闭与客户端的连接，完成一次 HTTP 请求和响应。</p>
 <p><br>
 </p>
-<p><img src="http://img.blog.csdn.net/20141226173222750?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvamNqYzkxOA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" width="484" height="222" alt=""><br>
-</p>
-<p>图 1 &nbsp; &nbsp;管道初始状态</p>
-<p><br>
-</p>
-<p><img src="http://img.blog.csdn.net/20141226161119981?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvamNqYzkxOA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
-<p> 图 2 &nbsp;管道最终状态&nbsp;</p>
-<p><br>
-</p>
-<p>&nbsp; &nbsp; （10） 关闭与浏览器的连接，完成了一次 HTTP 请求与回应，因为 HTTP 是无连接的。</p>
-<p><br>
-</p>
 
 以下内容来自源作者:
 
